@@ -15,8 +15,17 @@ function Test-IsAdministrator {
 }
 
 function Test-SymlinkPrivilege {
-  & node (Join-Path $repoRoot "apps\desktop\scripts\check-windows-symlink-privilege.cjs") *> $null
-  return $LASTEXITCODE -eq 0
+  # Windows PowerShell 5.1 can promote a native process's stderr to a terminating
+  # NativeCommandError when $ErrorActionPreference is Stop. Temporarily relax it
+  # so we can inspect the process exit code and trigger our UAC fallback cleanly.
+  $previousPreference = $ErrorActionPreference
+  try {
+    $ErrorActionPreference = "Continue"
+    & node (Join-Path $repoRoot "apps\desktop\scripts\check-windows-symlink-privilege.cjs") 1>$null 2>$null
+    return $LASTEXITCODE -eq 0
+  } finally {
+    $ErrorActionPreference = $previousPreference
+  }
 }
 
 # Packaging needs Windows symbolic-link creation. Developer Mode normally allows
