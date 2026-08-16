@@ -8,6 +8,36 @@ if ($env:OS -ne "Windows_NT") {
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $repoRoot
 
+function Test-IsAdministrator {
+  $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
+  $principal = New-Object Security.Principal.WindowsPrincipal($identity)
+  return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+function Test-SymlinkPrivilege {
+  & node (Join-Path $repoRoot "apps\desktop\scripts\check-windows-symlink-privilege.cjs") *> $null
+  return $LASTEXITCODE -eq 0
+}
+
+# Packaging needs Windows symbolic-link creation. Developer Mode normally allows
+# this without elevation; if it is unavailable or not effective, transparently
+# relaunch this helper as Administrator instead of asking the user to reopen a
+# separate elevated terminal manually.
+if (-not (Test-SymlinkPrivilege)) {
+  if (-not (Test-IsAdministrator)) {
+    Write-Host "[OpenPets Custom] Windows symlink privilege is unavailable. Requesting Administrator permission..." -ForegroundColor Yellow
+    $quotedScript = '"' + $PSCommandPath + '"'
+    try {
+      $elevated = Start-Process -FilePath "powershell.exe" -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File $quotedScript" -Wait -PassThru
+      exit $elevated.ExitCode
+    } catch {
+      throw "Administrator permission is required to package OpenPets on this Windows configuration. Re-run the command and accept the UAC prompt."
+    }
+  }
+
+  throw "Windows symbolic-link creation is still unavailable even in an elevated PowerShell. Check Windows security policy or restart Windows after enabling Developer Mode."
+}
+
 Write-Host "[OpenPets Custom] Preparing daily-driver build..." -ForegroundColor Cyan
 
 # Close the installed app so the NSIS installer can replace its files.
@@ -43,7 +73,7 @@ if ($LASTEXITCODE -ne 0) { throw "Desktop typecheck failed." }
 Write-Host "[OpenPets Custom] Building Windows installer..." -ForegroundColor Cyan
 & pnpm --filter @open-pets/desktop package
 if ($LASTEXITCODE -ne 0) {
-  throw "Packaging failed. On Windows, enable Developer Mode or run PowerShell as Administrator if the symlink preflight reports a privilege error."
+  throw "Packaging failed."
 }
 
 $dist = Join-Path $repoRoot "apps\desktop\dist-electron"
