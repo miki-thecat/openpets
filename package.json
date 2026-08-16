@@ -22,6 +22,7 @@
     "dev:desktop:control-center": "pnpm --filter @open-pets/desktop dev:control-center",
     "dev:desktop:plugins": "pnpm --filter @open-pets/desktop dev:plugins",
     "dev:desktop:third-parties": "OPENPETS_DISABLE_PLUGIN_CATALOG=1 OPENPETS_DEV_PLUGIN_ROOTS=\"$(pwd)/third-parties\" pnpm dev:desktop",
+    "custom:install:win": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-custom-windows.ps1",
     "package:desktop:dir": "pnpm build && pnpm --filter @open-pets/desktop package:dir",
     "package:desktop": "pnpm build && pnpm --filter @open-pets/desktop package",
     "release:desktop": "node apps/desktop/scripts/release-local.mjs",
