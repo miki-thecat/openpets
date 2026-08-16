@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("openPetsActionBubble", {
   select: (id) => ipcRenderer.invoke("openpets:action-bubble-select", id),
+  submit: (values) => ipcRenderer.invoke("openpets:action-bubble-submit", values),
   back: () => ipcRenderer.invoke("openpets:action-bubble-back"),
   close: () => ipcRenderer.send("openpets:action-bubble-close"),
   onModel: (callback) => {
