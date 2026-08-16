@@ -11,6 +11,7 @@ apps/desktop/.release-state/
 *.tsbuildinfo
 .DS_Store
 local/
+.backups/
 .slim/deepwork/
 opencode.json
 .slim/worktrees/
