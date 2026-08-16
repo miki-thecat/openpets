@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
 
 import { getAppStateSnapshot, initializeAppState, releaseStartupInstallLock } from "./app-state.js";
+import { installActionBubbleMenuPatch } from "./action-bubble.js";
 import { createAppIcon } from "./assets.js";
 import { setLocaleFromPreference } from "./i18n/index.js";
 import { applyExternalPetReaction, applyExternalPetSay, getDefaultPetPaused, installDefaultPetDisplayHandlers, isDefaultPetVisible, shouldOpenDefaultPetOnLaunch, showDefaultPet } from "./default-pet-controller.js";
@@ -111,6 +112,7 @@ if (!gotSingleInstanceLock) {
     });
     installInternalUiProtocol();
     installInternalUiHandlers();
+    installActionBubbleMenuPatch();
     createAppTray();
     installDefaultPetDisplayHandlers();
     await startLocalIpcServer();
