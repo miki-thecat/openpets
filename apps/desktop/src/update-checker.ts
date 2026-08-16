@@ -20,7 +20,10 @@ interface GitHubReleaseResponse {
   readonly html_url?: unknown;
 }
 
-const githubRepository = process.env.OPENPETS_GITHUB_REPOSITORY || "alvinunreal/openpets";
+// This fork is the user's daily-driver build. Keep update checks on the fork so
+// an upstream OpenPets release does not accidentally direct the user back to
+// the stock build and overwrite custom desktop behavior.
+const githubRepository = process.env.OPENPETS_GITHUB_REPOSITORY || "miki-thecat/openpets";
 const latestReleaseApiUrl = `https://api.github.com/repos/${githubRepository}/releases/latest`;
 const releasesPageUrl = `https://github.com/${githubRepository}/releases`;
 const releaseCheckTimeoutMs = 6_000;
